@@ -18,11 +18,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Structs\Utils\" />
+		<Folder Include="Structs\Utils\" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Include="..\..\.editorconfig" Link=".editorconfig" />
+		<None Include="..\..\.editorconfig" Link=".editorconfig" />
 	</ItemGroup>
 
 </Project>
