@@ -17,4 +17,8 @@
 		<PackageReference Include="PowTrees" Version="0.0.44" />
 	</ItemGroup>
 
+	<PropertyGroup>
+		<NoWarn>CS8524</NoWarn>
+	</PropertyGroup>
+
 </Project>
