@@ -2,8 +2,9 @@
 
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
-	
+
 	<ItemGroup>
 		<Reference Include="LINQPad.Runtime">
 			<HintPath>..\..\..\..\..\..\Program Files\LINQPad7\LINQPad.Runtime.dll</HintPath>
