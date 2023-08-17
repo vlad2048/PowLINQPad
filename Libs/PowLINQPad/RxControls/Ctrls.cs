@@ -11,6 +11,16 @@ namespace PowLINQPad.RxControls;
 
 public static class Ctrls
 {
+	public static (Control[], IDisp) MkTabber<E>(
+		IRwVar<E> rxVar,
+		Func<E, Control> disp
+	) where E : struct, Enum => Mk(d =>
+		Enum.GetValues<E>()
+			.SelectToArray(e => disp(e).OnClick(() => rxVar.V = e).D(d))
+	);
+
+
+
 	public static (Control, IDisp) MkInt(
 		IRwVar<int?> rxVar,
 		CtrlOpt opt

@@ -55,7 +55,15 @@ public static class ControlsRxExt
 	}*/
 
 
-
+	public static (C, IDisposable) OnClick<C>(this C ctrl, Action action) where C : Control
+	{
+		var d = new Disp();
+		ctrl.IsMultithreaded = true;
+		void Handler(object? sender, EventArgs args) => action();
+		ctrl.Click += Handler;
+		Disposable.Create(() => ctrl.Click -= Handler).D(d);
+		return (ctrl, d);
+	}
 	
 	public static (TextBox, IDisposable) OnChange(this TextBox ctrl, Action<string> action)
 	{

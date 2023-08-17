@@ -17,8 +17,12 @@
 		<PackageReference Include="PowTrees" Version="0.0.44" />
 	</ItemGroup>
 
-	<PropertyGroup>
-		<NoWarn>CS8524</NoWarn>
-	</PropertyGroup>
+	<ItemGroup>
+	  <Folder Include="Structs\Utils\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="..\..\.editorconfig" Link=".editorconfig" />
+	</ItemGroup>
 
 </Project>
