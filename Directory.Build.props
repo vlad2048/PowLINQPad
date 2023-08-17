@@ -1,0 +1,27 @@
+<Project>
+
+	<PropertyGroup>
+		<LangVersion>preview</LangVersion>
+		<EnablePreviewFeatures>True</EnablePreviewFeatures>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<DebugType>embedded</DebugType>
+		<Version>0.0.1</Version>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Authors>vlad2048</Authors>
+		<Description>Reactive control and utilities for LINQPad</Description>
+		<PackageTags>LINQPad, Reactive, UI</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageProjectUrl>https://github.com/vlad2048/PowLINQPad</PackageProjectUrl>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="$(SolutionDir)\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+	<PropertyGroup>
+		<NoWarn>CS1591</NoWarn>
+		<NoWarn>CS8524</NoWarn>
+	</PropertyGroup>
+
+</Project>
