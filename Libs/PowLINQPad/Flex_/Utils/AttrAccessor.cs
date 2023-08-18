@@ -1,5 +1,7 @@
 ﻿using LINQPad.Controls;
 using PowBasics.CollectionsExt;
+using PowBasics.Geom;
+using PowLINQPad.Flex_.Structs;
 using PowLINQPad.Flex_.StructsInternal;
 using PowLINQPad.UtilsInternal.Json_;
 
@@ -14,9 +16,21 @@ static class AttrAccessor
 
 	public static string GetFlex(this Control ctrl) => ctrl.HtmlElement.GetAttribute(AttrName);
 	
-	public static C SetFlex<C>(this C ctrl, FlexNfo lay) where C : Control
+	public static C SetFlex<C>(
+		this C ctrl,
+		Dir dir,
+		Dims dims,
+		bool scroll,
+		OverlayPos? overlay
+	) where C : Control
 	{
-		ctrl.HtmlElement.SetAttribute(AttrName, Jsoners.Common.Ser(lay));
+		var nfo = new FlexNfo(
+			dir,
+			dims,
+			scroll,
+			overlay
+		);
+		ctrl.HtmlElement.SetAttribute(AttrName, Jsoners.Common.Ser(nfo));
 		return ctrl;
 	}
 

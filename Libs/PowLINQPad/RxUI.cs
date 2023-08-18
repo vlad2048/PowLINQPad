@@ -15,7 +15,7 @@ public static class RxUI
 		serD.Value = new Disp();
 		Settings.Init();
 		CssExt.Init();
-		Flex.Init();
+		//Flex.Init();
 		PaletteUtils.Init();
 	}
 

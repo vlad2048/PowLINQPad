@@ -14,6 +14,68 @@
   <Namespace>LINQPad.Controls</Namespace>
 </Query>
 
+using static PowLINQPad.Flex_.Structs.Dims;
+
+
+void Main()
+{
+	var sets = Settings.Load<Sets>();
+	
+	var rxId = sets.Get(e => e.F.Id).D(D);
+	var rxBoolOpt = sets.Get(e => e.F.BoolOpt).D(D);
+	var rxText = sets.Get(e => e.F.Text).D(D);
+	var rxRngInt = sets.Get(e => e.F.RngInt).D(D);
+	var rxRngTime = sets.Get(e => e.F.RngTime).D(D);
+	var rxEnums = sets.Get(e => e.F.Enums).D(D);
+	
+	CtrlOpt o(int? keyWidth, int? valWidth, string title) => new(title, keyWidth, valWidth);
+	
+	var uiId		= Ctrls.MkInt			(rxId,		o(null, null, "Id"		)).D(D);
+	var uiBoolOpt	= Ctrls.MkBoolOpt		(rxBoolOpt,	o(null, null, "BoolOpt"	)).D(D);
+	var uiText		= Ctrls.MkText			(rxText,	o(null, null, "Text"	), true).D(D);
+	var uiRngInt	= Ctrls.MkRngInt		(rxRngInt,	o(null, null, "RngInt"	), new RngIntBounds(25, 50)).D(D);
+	var uiRngTime	= Ctrls.MkRngTime		(rxRngTime,	o(null, null, "RngTime"	), RngTime.SampleTimes, 20).D(D);
+	var uiEnums		= Ctrls.MkEnumMultiple	(rxEnums,	o(null, null, "Enums"	)).D(D);
+
+	
+	Flex.Vert(Fil,
+	
+		Flex.Horz(FilFit,
+			//new Button("Reset", _ => sets.Reset()),
+			Flex.Vert(Fit,
+				uiId,
+				uiBoolOpt
+			),
+			uiText,
+			uiRngInt
+		),
+		Flex.Horz(FilFit,
+			uiRngTime,
+			uiEnums
+		),
+		
+		Flex.Scroll(Fil,
+			Enumerable.Range(0, 60).SelectToArray(e => new Span($"Item: {e}"))
+		),
+		
+		Flex.Vert(FilFit,
+			rxId		.Select(e => $"Id: {e}"		).ToSpan(D),
+			rxBoolOpt	.Select(e => $"BoolOpt: {e}").ToSpan(D),
+			rxText		.Select(e => $"Text: [{e.Fmt()}]").ToSpan(D),
+			rxRngInt	.Select(e => $"RngInt: {e}"	).ToSpan(D),
+			rxRngTime	.Select(e => $"RngTime: {e}").ToSpan(D),
+			rxEnums		.Select(e => $"Enums: {e.JoinText()}"	).ToSpan(D)
+		)
+	)
+		.Build(true)
+		.Dump();
+}
+
+void OnStart()
+{
+	RxUI.Start();
+}
+
 enum Status
 {
 	First,
@@ -41,59 +103,6 @@ record Filt(
 class Sets : ISettings
 {
 	public Filt F { get; set; } = Filt.Empty;
-}
-
-void Main()
-{
-	var sets = Settings.Load<Sets>();
-	
-	var rxId = sets.Get(e => e.F.Id).D(D);
-	var rxBoolOpt = sets.Get(e => e.F.BoolOpt).D(D);
-	var rxText = sets.Get(e => e.F.Text).D(D);
-	var rxRngInt = sets.Get(e => e.F.RngInt).D(D);
-	var rxRngTime = sets.Get(e => e.F.RngTime).D(D);
-	var rxEnums = sets.Get(e => e.F.Enums).D(D);
-	
-	CtrlOpt o(int? keyWidth, int? valWidth, string title) => new(title, keyWidth, valWidth);
-	
-	var uiId		= Ctrls.MkInt			(rxId,		o(null, null, "Id"		)).D(D);
-	var uiBoolOpt	= Ctrls.MkBoolOpt		(rxBoolOpt,	o(null, null, "BoolOpt"	)).D(D);
-	var uiText		= Ctrls.MkText			(rxText,	o(null, null, "Text"	), true).D(D);
-	var uiRngInt	= Ctrls.MkRngInt		(rxRngInt,	o(null, null, "RngInt"	), new RngIntBounds(25, 50)).D(D);
-	var uiRngTime	= Ctrls.MkRngTime		(rxRngTime,	o(null, null, "RngTime"	), RngTime.SampleTimes, 20).D(D);
-	var uiEnums		= Ctrls.MkEnumMultiple	(rxEnums,	o(null, null, "Enums"	)).D(D);
-
-	
-	Flex.Vert(Dim.Fill, Dim.Fill,
-	
-		Flex.Horz(Dim.Fill, Dim.Auto,
-			Flex.Vert(Dim.Auto, Dim.Auto,
-				uiId,
-				uiBoolOpt
-			),
-			uiText,
-			uiRngInt
-		),
-		Flex.Horz(Dim.Fill, Dim.Auto,
-			uiRngTime,
-			uiEnums
-		),
-		
-		Flex.Scroll(Dim.Fill, Dim.Fill,
-			Enumerable.Range(0, 60).SelectToArray(e => new Span($"Item: {e}"))
-		),
-		
-		Flex.Vert(Dim.Fill, Dim.Fix(200),
-			rxId		.Select(e => $"Id: {e}"		).ToSpan(D),
-			rxBoolOpt	.Select(e => $"BoolOpt: {e}").ToSpan(D),
-			rxText		.Select(e => $"Text: [{e.Fmt()}]").ToSpan(D),
-			rxRngInt	.Select(e => $"RngInt: {e}"	).ToSpan(D),
-			rxRngTime	.Select(e => $"RngTime: {e}").ToSpan(D),
-			rxEnums		.Select(e => $"Enums: {e}"	).ToSpan(D)
-		)
-	)
-		.Build(true)
-		.Dump();
 }
 
 
@@ -127,8 +136,3 @@ static class FmtExt
 
 
 public static Disp D => RxUI.D;
-
-void OnStart()
-{
-	RxUI.Start();
-}

@@ -12,8 +12,8 @@ static class FlexSolver
 		var n = node.V;
 		return new []
 			{
-				SolveDim(Dir.Horz, parentDir == Dir.Horz, n.DimX),
-				SolveDim(Dir.Vert, parentDir == Dir.Vert, n.DimY),
+				SolveDim(Dir.Horz, parentDir == Dir.Horz, n.Dims.X),
+				SolveDim(Dir.Vert, parentDir == Dir.Vert, n.Dims.Y),
 				SolveDir(n.Dir),
 				SolveScroll(n.Scroll),
 				SolveOverlay(n.Overlay, hasAnyOverlayChildren)
@@ -34,9 +34,9 @@ static class FlexSolver
 	{
 		true => dim switch
 		{
-			FixDim { Val: var val } =>	A(CssAttr.Flex(CssFlex.Fix(val))),
-			AutoDim =>					A(CssAttr.Flex(CssFlex.Auto)),
-			FillDim =>					A(CssAttr.Flex(CssFlex.Fill), CssAttr.Dim(dir, Dim.Fill)),
+			FixDim { Val: var val } =>	A(CssAttr.Flex(Dim.Fix(val))),
+			FitDim =>					A(CssAttr.Flex(Dim.Fit)),
+			FilDim =>					A(CssAttr.Flex(Dim.Fil), CssAttr.Dim(dir, Dim.Fil)),
 			_ => throw new ArgumentException()
 		},
 		false => A(CssAttr.Dim(dir, dim)),
@@ -46,7 +46,7 @@ static class FlexSolver
 
 	private static ICssAttr[] SolveScroll(bool scroll) => scroll switch
 	{
-		false => A(CssAttr.Overflow(CssOverflow.Clip)),
+		false => A(CssAttr.Overflow(CssOverflow.None)),
 		true => A(CssAttr.Overflow(CssOverflow.Scroll)),
 	};
 

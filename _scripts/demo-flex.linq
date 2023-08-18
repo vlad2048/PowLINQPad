@@ -8,23 +8,25 @@
   <Namespace>PowLINQPad</Namespace>
 </Query>
 
+using static PowLINQPad.Flex_.Structs.Dims;
+
 void Main() =>
-	Flex.Vert(Dim.Fill, Dim.Fill,
-		Flex.Horz(Dim.Fill, Dim.Auto,
+	Flex.Vert(Fil,
+		Flex.Horz(FilFix(65),
 			new Span("Header Start"),
 			new Span("Header End")
 		),
 		
-		Flex.Horz(Dim.Fill, Dim.Fill,
-			Flex.Scroll(Dim.Fill, Dim.Fill,
+		Flex.Horz(Fil,
+			Flex.Scroll(Fil,
 				Enumerable.Range(0, 30).SelectToArray(e => new Span($"Left Item: {e}"))
 			),
-			Flex.Scroll(Dim.Fill, Dim.Fill,
+			Flex.Scroll(Fil,
 				Enumerable.Range(0, 60).SelectToArray(e => new Span($"Right Item: {e}"))
 			)
 		),
 		
-		Flex.Horz(Dim.Fill, Dim.Auto,
+		Flex.Horz(FilFit,
 			new Span("Footer")
 		)
 	)

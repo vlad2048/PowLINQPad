@@ -5,8 +5,7 @@ namespace PowLINQPad.Flex_.StructsInternal;
 
 sealed record FlexNfo(
 	Dir Dir,
-	IDim DimX,
-	IDim DimY,
+	Dims Dims,
 	bool Scroll,
 	OverlayPos? Overlay
 );

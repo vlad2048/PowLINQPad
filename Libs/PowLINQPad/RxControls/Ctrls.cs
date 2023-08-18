@@ -1,4 +1,6 @@
-﻿using System.Reactive.Linq;
+﻿using System.Reactive;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using LINQPad.Controls;
 using PowBasics.CollectionsExt;
 using PowLINQPad.RxControls.Structs;
@@ -16,24 +18,31 @@ public static class Ctrls
 		Func<E, Control> disp
 	) where E : struct, Enum => Mk(d =>
 		Enum.GetValues<E>()
-			.SelectToArray(e => disp(e).OnClick(() => rxVar.V = e).D(d))
+			.SelectToArray(e =>
+			{
+				var btn = disp(e);
+				btn.WhenCtrlChanged().Subscribe(_ => rxVar.V = e).D(d);
+				return btn;
+			})
 	);
 
 
 
 	public static (Control, IDisp) MkInt(
-		IRwVar<int?> rxVar,
+		IRwVar<int?> rxOutVar,
 		CtrlOpt opt
-	) => Mk(d =>
-		mk(
-			CtrlSize.Single,
-			mkKey(opt.KeyWidth, opt.Title),
-			mkVal(opt.ValWidth,
-				new TextBox(rxVar.V.IntToUI())
-					.OnChange(v => rxVar.V = IntFromUI(v)).D(d)
+	) =>
+		rxOutVar.Mk((rxVar, d) =>
+			mk(
+				CtrlSize.Single,
+				mkKey(opt.KeyWidth, opt.Title),
+				mkVal(opt.ValWidth,
+					new TextBox()
+						.Var2Ctrl(rxVar, (ctrl, val) => ctrl.Text = val.IntToUI()).D(d)
+						.Ctrl2Var(rxVar, (ctrl, set) => set(ctrl.Text.IntFromUI())).D(d)
+				)
 			)
-		)
-	);
+		);
 
 	private static string IntToUI(this int? v) => $"{v}";
 	private static int? IntFromUI(this string v) => int.TryParse(v, out var val) ? val : null;
@@ -42,9 +51,9 @@ public static class Ctrls
 
 
 	public static (Control, IDisp) MkBoolOpt(
-		IRwVar<BoolOpt> rxVar,
+		IRwVar<BoolOpt> rxOutVar,
 		CtrlOpt opt
-	) => Mk(d =>
+	) => rxOutVar.Mk((rxVar, d) =>
 		mk(
 			CtrlSize.Single,
 			mkKey(opt.KeyWidth, opt.Title),
@@ -57,7 +66,7 @@ public static class Ctrls
 		)
 	);
 
-	private static (Control[], IDisp) MakeRadios<E>(IRwVar<E> rxVar) where E : struct, Enum
+	private static (Control[], IDisp) MakeRadios<E>(IFullRwBndVar<E> rxVar) where E : struct, Enum
 	{
 		var groupId = MakeGroupId();
 		return Mk(d =>
@@ -65,7 +74,8 @@ public static class Ctrls
 				.SelectToArray(e =>
 					new RadioButton(groupId, isChecked: rxVar.V.Equals(e))
 						.Squeeze()
-						.OnSelected(() => rxVar.V = e).D(d)
+						.Var2Ctrl(rxVar, (ctrl, val) => ctrl.Checked = val.Equals(e)).D(d)
+						.Ctrl2Var(rxVar, (ctrl, set) => { if (ctrl.Checked) set(e); }).D(d)
 				)
 		);
 	}
@@ -73,21 +83,23 @@ public static class Ctrls
 
 
 	public static (Control, IDisp) MkText(
-		IRwVar<TxtSearch> rxVar,
+		IRwVar<TxtSearch> rxOutVar,
 		CtrlOpt opt,
 		bool allowRegex
-	) => Mk(d => 
+	) => rxOutVar.Mk((rxVar, d) => 
 		mk(
 			CtrlSize.Single,
 			mkKey(opt.KeyWidth, opt.Title, allowRegex switch
 			{
 				false => null,
 				true => new CheckBox("regex", rxVar.V.UseRegex)
-					.OnChange(v => rxVar.V = rxVar.V.SetUseRegex(v)).D(D)
+					.Var2Ctrl(rxVar, (ctrl, val) => ctrl.Checked = val.UseRegex).D(d)
+					.Ctrl2Var(rxVar, (ctrl, set) => set(rxVar.V.SetUseRegex(ctrl.Checked))).D(d)
 			}),
 			mkVal(opt.ValWidth,
 				new TextBox(rxVar.V.Text)
-					.OnChange(v => rxVar.V = rxVar.V.SetText(v)).D(d)
+					.Var2Ctrl(rxVar, (ctrl, val) => ctrl.Text = val.Text).D(d)
+					.Ctrl2Var(rxVar, (ctrl, set) => set(rxVar.V.SetText(ctrl.Text))).D(d)
 			)
 		)
 	);
@@ -95,10 +107,10 @@ public static class Ctrls
 
 
 	public static (Control, IDisp) MkRngInt(
-		IRwVar<RngInt> rxVar,
+		IRwVar<RngInt> rxOutVar,
 		CtrlOpt opt,
 		RngIntBounds bounds
-	) => Mk(d => 
+	) => rxOutVar.Mk((rxVar, d) =>
 		mk(CtrlSize.Double,
 			mkKey(opt.KeyWidth, opt.Title),
 			mkVal(opt.ValWidth, vert(
@@ -106,18 +118,20 @@ public static class Ctrls
 					new RangeControl(
 							bounds.Min,
 							bounds.Max,
-							rxVar.V.Min.RngIntMinToUI(bounds)
+							bounds.Min
 						).CssRangeInt()
-						.OnChange(v => rxVar.V = rxVar.V with {Min = v.RngIntMinFromUI(bounds)}).D(D),
+						.Var2Ctrl(rxVar, (ctrl, val) => ctrl.Value = val.Min.RngIntMinToUI(bounds)).D(d)
+						.Ctrl2Var(rxVar, (ctrl, set) => set(rxVar.V with { Min = ctrl.Value.RngIntMinFromUI(bounds) })).D(d),
 					rxVar.Select(e => e.Min.RngIntMinToUI(bounds)).ToSpan(d)
 				),
 				horzMid(
 					new RangeControl(
-							bounds.Min,
-							bounds.Max,
-							rxVar.V.Max.RngIntMaxToUI(bounds)
-						).CssRangeInt()
-						.OnChange(v => rxVar.V = rxVar.V with {Max = v.RngIntMaxFromUI(bounds)}).D(D),
+						bounds.Min,
+						bounds.Max,
+						bounds.Max
+					).CssRangeInt()
+						.Var2Ctrl(rxVar, (ctrl, val) => ctrl.Value = val.Max.RngIntMaxToUI(bounds)).D(d)
+						.Ctrl2Var(rxVar, (ctrl, set) => set(rxVar.V with { Max = ctrl.Value.RngIntMaxFromUI(bounds) })).D(d),
 					rxVar.Select(e => e.Max.RngIntMaxToUI(bounds)).ToSpan(d)
 				)
 			))
@@ -133,14 +147,14 @@ public static class Ctrls
 
 
 	public static (Control, IDisp) MkRngTime(
-		IRwVar<RngTime> rxVar,
+		IRwVar<RngTime> rxOutVar,
 		CtrlOpt opt,
 		IEnumerable<DateTime> times,
 		int maxTicks
 	)
 	{
 		var ticks = RngTimeUtils.MakeTicks(times, maxTicks);
-		return Mk(d => 
+		return rxOutVar.Mk((rxVar, d) => 
 			mk(CtrlSize.Double,
 				mkKey(opt.KeyWidth, opt.Title),
 				mkVal(opt.ValWidth, vert(
@@ -148,18 +162,20 @@ public static class Ctrls
 						new RangeControl(
 								0,
 								ticks.Length - 1,
-								rxVar.V.Min.RngTimeMinToUI(ticks)
+								0
 							).CssRangeTime()
-							.OnChange(v => rxVar.V = rxVar.V with {Min = v.RngTimeMinFromUI(ticks)}).D(D),
+							.Var2Ctrl(rxVar, (ctrl, val) => ctrl.Value = val.Min.RngTimeMinToUI(ticks)).D(d)
+							.Ctrl2Var(rxVar, (ctrl, set) => set(rxVar.V with { Min = ctrl.Value.RngTimeMinFromUI(ticks) })).D(d),
 						rxVar.Select(e => e.Min.RngTimeMinToUI(ticks)).ToSpan(d)
 					),
 					horzMid(
 						new RangeControl(
 								0,
 								ticks.Length - 1,
-								rxVar.V.Max.RngTimeMaxToUI(ticks)
+								ticks.Length - 1
 							).CssRangeTime()
-							.OnChange(v => rxVar.V = rxVar.V with {Max = v.RngTimeMaxFromUI(ticks)}).D(D),
+							.Var2Ctrl(rxVar, (ctrl, val) => ctrl.Value = val.Max.RngTimeMaxToUI(ticks)).D(d)
+							.Ctrl2Var(rxVar, (ctrl, set) => set(rxVar.V with { Max = ctrl.Value.RngTimeMaxFromUI(ticks) })).D(d),
 						rxVar.Select(e => e.Max.RngTimeMaxToUI(ticks)).ToSpan(d)
 					)
 				))
@@ -176,12 +192,12 @@ public static class Ctrls
 
 
 	public static (Control, IDisp) MkEnumMultiple<E>(
-		IRwVar<E[]> rxVar,
+		IRwVar<E[]> rxOutVar,
 		CtrlOpt opt
 	) where E : struct, Enum
 	{
 		var vals = Enum.GetValues<E>();
-		return Mk(d => 
+		return rxOutVar.Mk((rxVar, d) => 
 			mk(
 				CtrlSize.Double,
 				mkKey(opt.KeyWidth, opt.Title),
@@ -190,25 +206,90 @@ public static class Ctrls
 							SelectBoxKind.MultiSelectListBox,
 							vals.SelectToArray(e => $"{e}")
 						)
-						.InitSelectedIndices(rxVar.V)
-						//.CssIf(valHeight.HasValue, $"height: {valHeight}px;")
-						.OnChange<E>(vs => rxVar.V = vs).D(d)
+						.Var2Ctrl(rxVar, (ctrl, val) => ctrl.SelectedIndexes = val.SelectToArray(e => vals.IndexOf(e))).D(d)
+						.Ctrl2Var(rxVar, (ctrl, set) => set(ctrl.SelectedIndexes.SelectToArray(idx => vals[idx]))).D(d)
 				)
 			)
 		);
 	}
 
-	private static SelectBox InitSelectedIndices<E>(this SelectBox ctrl, E[] selVals) where E : struct, Enum
-	{
-		var vals = Enum.GetValues<E>();
-		ctrl.SelectedIndexes = selVals.SelectToArray(e => vals.IndexOf(e));
-		return ctrl;
-	}
 
+
+
+
+
+	private static (C, IDisp) Mk<C, T>(this IRwVar<T> rxOutVar, Func<IFullRwBndVar<T>, IRoDispBase, C> fun)
+	{
+		var d = new Disp();
+		var rxVar = rxOutVar.ToBnd().D(d);
+		return (fun(rxVar, d), d);
+	}
 
 	private static (C, IDisp) Mk<C>(Func<IRoDispBase, C> fun)
 	{
 		var d = new Disp();
 		return (fun(d), d);
 	}
+
+
+
+	private static (C, IDisp) Var2Ctrl<C, T>(
+		this C ctrl,
+		IFullRwBndVar<T> rxVar,
+		Action<C, T> setCtrl
+	) where C : Control =>
+		rxVar.WhenOuter
+			.Prepend(rxVar.V)
+			.Subscribe(v => setCtrl(ctrl, v))
+			.WithObj(ctrl);
+
+	private static (C, IDisp) Ctrl2Var<C, T>(
+		this C ctrl,
+		IFullRwBndVar<T> rxVar,
+		Action<C, Action<T>> setVar
+	) where C : Control =>
+		ctrl.WhenCtrlChanged()
+			.Subscribe(_ => setVar(ctrl, rxVar.SetInner))
+			.WithObj(ctrl);
+
+
+
+
+	private static (IFullRwBndVar<T>, IDisp) ToBnd<T>(this IRwVar<T> rxVar) => rxVar switch
+	{
+		IFullRwBndVar<T> bndVar => (bndVar, Disposable.Empty),
+		_ => rxVar.ToBndMake()
+	};
+
+	private static (IFullRwBndVar<T>, IDisp) ToBndMake<T>(this IRwVar<T> rxVar)
+	{
+		var d = new Disp();
+		var rxBndVar = Var.MakeBnd(rxVar.V).D(d);
+		rxVar.Subscribe(rxBndVar.SetOuter).D(d);
+		rxBndVar.WhenInner.Subscribe(v => rxVar.V = v).D(d);
+		return (rxBndVar, d);
+	}
+
+
+
+
+
+
+
+
+
+
+
+	private static (T, IDisposable) WithObj<T>(this IDisposable d, T obj) => (obj, d);
+
+	private static IObservable<Unit> WhenCtrlChanged<C>(this C ctrl) where C : Control =>
+	(
+		ctrl switch
+		{
+			TextBox c => Obs.FromEventPattern(e => c.TextInput += e, e => c.TextInput -= e),
+			CheckBox c => Obs.FromEventPattern(e => c.Click += e, e => c.Click -= e),
+			RangeControl c => Obs.FromEventPattern(e => c.ValueInput += e, e => c.ValueInput -= e),
+			SelectBox c => Obs.FromEventPattern(e => c.SelectionChanged += e, e => c.SelectionChanged -= e),
+			_ => throw new ArgumentException($"Cannot detect change for {ctrl.GetType().Name}")
+		}).ToUnit();
 }

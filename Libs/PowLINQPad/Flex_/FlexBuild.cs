@@ -9,10 +9,12 @@ using PowLINQPad.UtilsUI;
 
 namespace PowLINQPad.Flex_;
 
-public static class FlexBuildExt
+public static class FlexBuild
 {
 	public static C Build<C>(this C ctrl, bool dbgColors = false) where C : Control
 	{
+		FlexCssReset.Init();
+
 		var root = BuildTree(ctrl);
 		SolveTree(ctrl, root, dbgColors);
 		return ctrl;
