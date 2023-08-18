@@ -1,8 +1,6 @@
-﻿using LINQPad;
-using LINQPad.Controls;
+﻿using LINQPad.Controls;
 using PowBasics.Geom;
 using PowLINQPad.Flex_.Structs;
-using PowLINQPad.Flex_.StructsInternal;
 using PowLINQPad.Flex_.Utils;
 
 namespace PowLINQPad.Flex_;

@@ -1,20 +1,26 @@
 <Query Kind="Program">
   <Reference>C:\Dev_Nuget\Libs\PowLINQPad\Libs\PowLINQPad\bin\Debug\net7.0\PowLINQPad.dll</Reference>
-  <Namespace>PowLINQPad</Namespace>
-  <Namespace>PowLINQPad.Structs</Namespace>
+  <NuGetReference>AngleSharp</NuGetReference>
+  <Namespace>LINQPad.Controls</Namespace>
   <Namespace>PowBasics.CollectionsExt</Namespace>
-  <Namespace>PowRxVar</Namespace>
-  <Namespace>PowLINQPad.Settings_</Namespace>
-  <Namespace>PowLINQPad.RxControls.Structs</Namespace>
-  <Namespace>PowLINQPad.RxControls</Namespace>
-  <Namespace>System.Reactive.Linq</Namespace>
-  <Namespace>PowLINQPad.UtilsUI</Namespace>
+  <Namespace>PowLINQPad</Namespace>
   <Namespace>PowLINQPad.Flex_</Namespace>
   <Namespace>PowLINQPad.Flex_.Structs</Namespace>
-  <Namespace>LINQPad.Controls</Namespace>
+  <Namespace>PowLINQPad.RxControls</Namespace>
+  <Namespace>PowLINQPad.RxControls.Structs</Namespace>
+  <Namespace>PowLINQPad.Settings_</Namespace>
+  <Namespace>PowLINQPad.Structs</Namespace>
+  <Namespace>PowLINQPad.UtilsUI</Namespace>
+  <Namespace>PowRxVar</Namespace>
+  <Namespace>System.Reactive.Linq</Namespace>
+  <Namespace>AngleSharp.Html.Parser</Namespace>
+  <Namespace>AngleSharp.Html</Namespace>
 </Query>
 
 using static PowLINQPad.Flex_.Structs.Dims;
+
+
+public const string HtmlFile = @"D:\tmp\linq-design\edit.html";
 
 
 void Main()
@@ -41,7 +47,8 @@ void Main()
 	Flex.Vert(Fil,
 	
 		Flex.Horz(FilFit,
-			//new Button("Reset", _ => sets.Reset()),
+			new Button("Reset", _ => sets.Reset()),
+			new Button("Edit", _ => SaveHtml()),
 			Flex.Vert(Fit,
 				uiId,
 				uiBoolOpt
@@ -69,12 +76,10 @@ void Main()
 	)
 		.Build(true)
 		.Dump();
+	
+	SaveHtml();
 }
 
-void OnStart()
-{
-	RxUI.Start();
-}
 
 enum Status
 {
@@ -135,4 +140,60 @@ static class FmtExt
 }
 
 
+
+
+
+
+public static void SaveHtml()
+{
+	var html = (string)Util.InvokeScript(true, "eval", "document.documentElement.innerHTML");
+	html = Beautifier.Html(html);
+	File.WriteAllText(HtmlFile, html);
+}
+
+public static class Beautifier
+{
+	public static string Html(string html)
+	{
+		var parser = new HtmlParser();
+		var doc = parser.ParseDocument(html);
+		using var writer = new StringWriter();
+		doc.ToHtml(writer, new PrettyMarkupFormatter
+		{
+			Indentation = "\t",
+			NewLine = "\n"
+		});
+		var formattedHtml = writer.ToString();
+		return formattedHtml;
+	}
+}
+
+
+
+
+
 public static Disp D => RxUI.D;
+void OnStart() => RxUI.Start();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

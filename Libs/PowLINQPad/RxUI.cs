@@ -1,5 +1,4 @@
-﻿using PowLINQPad.Flex_;
-using PowLINQPad.Flex_.Utils;
+﻿using PowLINQPad.Flex_.Utils;
 using PowLINQPad.Settings_;
 using PowLINQPad.UtilsUI;
 
