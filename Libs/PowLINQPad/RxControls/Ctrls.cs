@@ -1,5 +1,4 @@
 ﻿using System.Reactive;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using LINQPad.Controls;
 using PowBasics.CollectionsExt;
@@ -14,7 +13,7 @@ namespace PowLINQPad.RxControls;
 
 public static class Ctrls
 {
-	public static (Control[], IDisp) MkTabber<E>(
+	/*public static (Control[], IDisp) MkTabber<E>(
 		IRwVar<E> rxVar,
 		Func<E, Control> disp
 	) where E : struct, Enum => Mk(d =>
@@ -25,7 +24,21 @@ public static class Ctrls
 				btn.WhenCtrlChanged().Subscribe(_ => rxVar.V = e).D(d);
 				return btn;
 			})
-	);
+	);*/
+
+	public static (Control[], IDisp) MkTabber<E>(
+		IRwVar<E> rxOutVar,
+		Func<E, IRoVar<bool>, Control> disp
+	) where E : struct, Enum =>
+		rxOutVar.Mk((rxVar, d) => 
+			Enum.GetValues<E>()
+				.SelectToArray(e =>
+				{
+					var isOn = rxVar.SelectVar(f => f.Equals(e));
+					return disp(e, isOn)
+						.Ctrl2Var(rxVar, (ctrl, set) => set(e)).D(d);
+				})
+		);
 
 
 
@@ -271,9 +284,10 @@ public static class Ctrls
 		ctrl switch
 		{
 			TextBox c => Obs.FromEventPattern(e => c.TextInput += e, e => c.TextInput -= e),
-			CheckBox c => Obs.FromEventPattern(e => c.Click += e, e => c.Click -= e),
 			RangeControl c => Obs.FromEventPattern(e => c.ValueInput += e, e => c.ValueInput -= e),
 			SelectBox c => Obs.FromEventPattern(e => c.SelectionChanged += e, e => c.SelectionChanged -= e),
+			//CheckBox c => Obs.FromEventPattern(e => c.Click += e, e => c.Click -= e),
+			Control c => Obs.FromEventPattern(e => c.Click += e, e => c.Click -= e),
 			_ => throw new ArgumentException($"Cannot detect change for {ctrl.GetType().Name}")
 		}).ToUnit();
 }
