@@ -19,7 +19,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Structs\Utils\" />
+		<Content Include="../../linqpad-samples/**/*.*">
+			<Pack>true</Pack>
+			<PackagePath>linqpad-samples;content</PackagePath>
+		</Content>
 	</ItemGroup>
 
 	<ItemGroup>
