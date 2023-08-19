@@ -18,11 +18,10 @@ public static class CssExt
 		return ctrlDisp;
 	}
 
-	public static C Css<C>(this C ctrl, string css) where C : Control
-	{
-		ctrl.CssClass.AddCls(GetClass(css));
-		return ctrl;
-	}
+
+	public static C Css<C>(this C ctrl, string css) where C : Control =>
+		ctrl.AddCls(GetClass(css));
+
 
 	public static (C, IDisp) CssIf<C>(this C ctrl, IRoVar<bool> isOn, string? cssOn, string? cssOff) where C : Control
 	{
@@ -36,10 +35,10 @@ public static class CssExt
 			switch (v)
 			{
 				case false:
-					ctrl.CssClass = ctrl.CssClass.DelCls(clsOn).AddCls(clsOff);
+					ctrl.DelCls(clsOn).AddCls(clsOff);
 					break;
 				case true:
-					ctrl.CssClass = ctrl.CssClass.DelCls(clsOff).AddCls(clsOn);
+					ctrl.DelCls(clsOff).AddCls(clsOn);
 					break;
 			}
 		}).D(d);
@@ -68,46 +67,8 @@ public static class CssExt
 	}
 
 
-	private static string AddCls(this string str, string? cls) => cls
-		switch
-		{
-			null => str,
-			not null => str switch
-			{
-				null => cls,
-				not null => str.AddClsNotNull(cls)
-			}
-		};
-	private static string DelCls(this string str, string? cls) => cls
-		switch
-		{
-			null => str,
-			not null => str switch
-			{
-				null => cls,
-				not null => str.DelClsNotNull(cls)
-			}
-		};
-
-	private static string AddClsNotNull(this string str, string cls)
-	{
-		var parts = str.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-		return parts.Contains(cls) switch
-		{
-			true => str,
-			false => parts.Append(cls).JoinText(" ")
-		};
-	}
-	private static string DelClsNotNull(this string str, string cls)
-	{
-		var parts = str.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-		return parts.Contains(cls) switch
-		{
-			true => parts.Where(e => e != cls).JoinText(" "),
-			false => str
-		};
-	}
-
+	
+	
 	internal static void Init() => clsMap.Clear();
 
 
