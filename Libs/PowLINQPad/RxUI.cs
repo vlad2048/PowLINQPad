@@ -1,4 +1,5 @@
 ﻿using PowLINQPad.Flex_.Utils;
+using PowLINQPad.Interactions.ListScrolling;
 using PowLINQPad.Settings_;
 using PowLINQPad.UtilsUI;
 
@@ -14,8 +15,8 @@ public static class RxUI
 		serD.Value = new Disp();
 		Settings.Init();
 		CssExt.Init();
-		//Flex.Init();
 		PaletteUtils.Init();
+		ListScroller.Init();
 	}
 
 	private static readonly SerialDisp<Disp> serD = new();

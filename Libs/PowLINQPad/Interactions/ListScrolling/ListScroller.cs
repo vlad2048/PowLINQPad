@@ -34,7 +34,7 @@ public static class ListScroller
 	}
 
 
-	private static void Init() => Util.HtmlHead.AddScript("""
+	internal static void Init() => Util.HtmlHead.AddScript("""
 		function jump(idx) {
 			const elts = document.getElementsByClassName(`idx-${idx}`);
 			if (!!elts && elts.length > 0) {
