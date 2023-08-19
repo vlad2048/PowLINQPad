@@ -6,7 +6,8 @@ public sealed record PagerState(
 	IRwVar<int> PageIndex,
 	IRoVar<int> PageCount,
 	Action IncPage,
-	Action DecPage
+	Action DecPage,
+	int PageSize
 )
 {
 	public IRoVar<bool> CanDecPage => Var.Expr(() => PageIndex.V > 0);

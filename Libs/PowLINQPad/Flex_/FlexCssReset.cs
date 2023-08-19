@@ -24,5 +24,29 @@ static class FlexCssReset
 		#final>div {
 			height: 100%;
 		}
+
+
+		/*
+		.dc-height {
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+		.dc-height>div {
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+		.dc-height>div>div {
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+		.dc-height>div>div>div {
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+		*/
 	""");
 }

@@ -20,7 +20,8 @@ public static class PagerMaker
 			{
 				if (pageIndex.V >= pageCount.V - 1) return;
 				pageIndex.SetInner(pageIndex.V + 1);
-			}
+			},
+			pageSize
 		);
 
 		var itemsFiltered = Var.Expr(() => items.V.Skip(pageIndex.V * pageSize).Take(pageSize).ToArray());
@@ -32,6 +33,6 @@ public static class PagerMaker
 	private static int CalcPageCount(int total, int pageSize) => total switch
 	{
 		0 => 1,
-		_ => Math.Max(1, ((total - 1) / pageSize) + 1)
+		_ => Math.Max(1, (total - 1) / pageSize + 1)
 	};
 }

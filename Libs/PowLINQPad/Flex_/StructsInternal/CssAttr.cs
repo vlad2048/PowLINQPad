@@ -22,7 +22,7 @@ sealed record DimCssAttr(Dir Dir, IDim Dim) : ICssAttr
 	public override string ToString() => (Dir, Dim) switch
 	{
 		(Dir.Horz, FixDim { Val: var val })	=> $"width: {val}px;",
-		(Dir.Vert, FixDim { Val: var val })	=> $"min-height: {val}px;",
+		(Dir.Vert, FixDim { Val: var val })	=> $"height: {val}px;",
 		(Dir.Horz, FitDim)					=> "width: auto;",
 		(Dir.Vert, FitDim)					=> "height: auto;",
 		(Dir.Horz, FilDim)					=> "width: 100%;",

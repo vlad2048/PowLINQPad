@@ -1,17 +1,58 @@
-﻿using LINQPad.Controls;
+﻿using System.Reactive.Linq;
+using LINQPad.Controls;
 using LINQPad;
-using PowBasics.CollectionsExt;
+using PowLINQPad.Interactions.Paging;
 using PowLINQPad.UtilsUI;
 
 namespace PowLINQPad.Interactions.ListScrolling;
 
 public static class ListScroller
 {
+	public static TimeSpan JumpDelay { get; set; } = TimeSpan.FromMilliseconds(10);
+
+	public static (DumpContainer, IDisp) ToJumpDC(this IRoVar<Div[]> rxDivs, PagerState pagerState, IObservable<int> jump)
+	{
+		var d = new Disp();
+		var dc = new DumpContainer();
+
+		rxDivs.Subscribe(divs =>
+		{
+			for (var i = 0; i < divs.Length; i++) divs[i].AddCls($"idx-{i}");
+			dc.UpdateContent(divs);
+		}).D(d);
+
+		jump
+			.Subscribe(idx =>
+			{
+				var jmpPageIdx = idx / pagerState.PageSize;
+				var jmpPageOfs = idx % pagerState.PageSize;
+				pagerState.PageIndex.V = jmpPageIdx;
+				Observable.Timer(JumpDelay).Subscribe(_ => JumpToIdx(jmpPageOfs));
+			}).D(d);
+
+		return (dc, d);
+	}
+
+
+	private static void Init() => Util.HtmlHead.AddScript("""
+		function jump(idx) {
+			const elts = document.getElementsByClassName(`idx-${idx}`);
+			if (!!elts && elts.length > 0) {
+				const elt = elts[0];
+				elt.scrollIntoView();
+			}
+		}
+	""");
+	private static void JumpToIdx(int idx) => Util.InvokeScript(true, "jump", idx);
+
+
+	/*
 	public static (Div, IDisp) DisplayScrollable(this IRoVar<Div[]> divsVar, IObservable<int> whenScroll)
 	{
 		var d = new Disp();
 		var dc = new DumpContainer();
 		var wrapDiv = new Div(dc);
+		wrapDiv.CssClass = "dc-height";
 
 		divsVar.Subscribe(divs => dc.UpdateContent(new Div(divs.DisplayScrollable(whenScroll).D(d)))).D(d);
 		
@@ -44,4 +85,5 @@ public static class ListScroller
 		}
 		return (divs.SelectToArray(e => (Control)e), d);
 	}
+	*/
 }
