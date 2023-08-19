@@ -3,12 +3,13 @@
 ## Setup
 Write this in your LINQPad query to init the library
 ```c#
-public static Disp D => RxUI.D;
+// optional aliases
+global using Obs = System.Reactive.Linq.Observable;
+global using IDisp = System.IDisposable;
+using static PowLINQPad.Flex_.Structs.Dims;
 
-void OnStart()
-{
-	RxUI.Start();
-}
+public static Disp D => RxUI.D;
+void OnStart() => RxUI.Start();
 ```
 
 
