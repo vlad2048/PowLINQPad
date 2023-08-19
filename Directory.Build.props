@@ -10,7 +10,7 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Authors>vlad2048</Authors>
 		<Description>Reactive control and utilities for LINQPad</Description>
-		<PackageTags>LINQPad, Reactive, UI</PackageTags>
+		<PackageTags>LINQPad, Reactive, UI, linqpad-samples</PackageTags>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageProjectUrl>https://github.com/vlad2048/PowLINQPad</PackageProjectUrl>
 	</PropertyGroup>
