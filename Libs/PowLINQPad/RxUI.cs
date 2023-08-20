@@ -14,7 +14,7 @@ public static class RxUI
 		serD.Value = null;
 		serD.Value = new Disp();
 		Settings.Init();
-		CssExt.Init();
+		CssUtils.Init();
 		PaletteUtils.Init();
 		ListScroller.Init();
 	}
