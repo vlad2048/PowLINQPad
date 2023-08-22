@@ -13,7 +13,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="AngleSharp" Version="1.0.4" />
-		<PackageReference Include="PowBasics" Version="0.0.32" />
+		<PackageReference Include="PowBasics" Version="0.0.33" />
 		<PackageReference Include="PowRxVar" Version="0.0.47" />
 		<PackageReference Include="PowTrees" Version="0.0.44" />
 	</ItemGroup>
