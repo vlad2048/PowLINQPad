@@ -106,7 +106,7 @@ public static class Ctrls
 	);
 
 
-	public static (Control, IDisp) MkIntSlider(
+	/*public static (Control, IDisp) MkIntSlider(
 		IRwVar<int> rxOutVar,
 		CtrlOpt opt,
 		RngIntBounds bounds,
@@ -129,7 +129,54 @@ public static class Ctrls
 				)
 			))
 		)
-	);
+	);*/
+	public static (Control, IDisp) MkIntSlider(
+		IRwVar<int> rxVar,
+		CtrlOpt opt,
+		RngIntBounds bounds,
+		Func<int, string> fmt
+	) =>
+		Mk(d =>
+			mk(CtrlSize.Single,
+				mkKey(opt.KeyWidth, opt.Title),
+				mkVal(opt.ValWidth, vert(
+					horzMid(
+						new RangeControl(
+								bounds.Min,
+								bounds.Max,
+								bounds.Min
+							)
+							.SetStep(bounds.Step)
+							.CssRangeInt()
+							.Var2CtrlSimple(rxVar, (ctrl, val) => ctrl.Value = val).D(d)
+							.Ctrl2VarSimple(rxVar, (ctrl, set) => set(rxVar.V = ctrl.Value)).D(d),
+						rxVar.Select(fmt).ToSpan(d)
+					)
+				))
+			)
+		);
+	private static (C, IDisp) Var2CtrlSimple<C, T>(
+		this C ctrl,
+		IRoVar<T> rxVar,
+		Action<C, T> setCtrl
+	) where C : Control =>
+		rxVar
+			//.Prepend(rxVar.V)
+			.Subscribe(v => setCtrl(ctrl, v))
+			.WithObj(ctrl);
+	private static (C, IDisp) Ctrl2VarSimple<C, T>(
+		this C ctrl,
+		IRwVar<T> rxVar,
+		Action<C, Action<T>> setVar
+	) where C : Control =>
+		ctrl.WhenCtrlChanged()
+			.Subscribe(_ => setVar(ctrl, e => rxVar.V = e))
+			.WithObj(ctrl);
+
+
+
+
+
 
 
 	public static (Control, IDisp) MkRngInt(
