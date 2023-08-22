@@ -5,8 +5,8 @@ namespace PowLINQPad.Interactions.Paging;
 public sealed record PagerState(
 	IRwVar<int> PageIndex,
 	IRoVar<int> PageCount,
-	Action IncPage,
 	Action DecPage,
+	Action IncPage,
 	int PageSize
 )
 {

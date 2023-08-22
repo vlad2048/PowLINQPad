@@ -120,20 +120,24 @@ public static class Ctrls
 							bounds.Min,
 							bounds.Max,
 							bounds.Min
-						).CssRangeInt()
+						)
+						.SetStep(bounds.Step)
+						.CssRangeInt()
 						.Var2Ctrl(rxVar, (ctrl, val) => ctrl.Value = val.Min.RngIntMinToUI(bounds)).D(d)
 						.Ctrl2Var(rxVar, (ctrl, set) => set(rxVar.V with { Min = ctrl.Value.RngIntMinFromUI(bounds) })).D(d),
-					rxVar.Select(e => e.Min.RngIntMinToUI(bounds)).ToSpan(d)
+					rxVar.Select(e => e.Min.RngIntToUILabel()).ToSpan(d)
 				),
 				horzMid(
 					new RangeControl(
 						bounds.Min,
 						bounds.Max,
 						bounds.Max
-					).CssRangeInt()
+					)
+						.SetStep(bounds.Step)
+						.CssRangeInt()
 						.Var2Ctrl(rxVar, (ctrl, val) => ctrl.Value = val.Max.RngIntMaxToUI(bounds)).D(d)
 						.Ctrl2Var(rxVar, (ctrl, set) => set(rxVar.V with { Max = ctrl.Value.RngIntMaxFromUI(bounds) })).D(d),
-					rxVar.Select(e => e.Max.RngIntMaxToUI(bounds)).ToSpan(d)
+					rxVar.Select(e => e.Max.RngIntToUILabel()).ToSpan(d)
 				)
 			))
 		)
@@ -141,8 +145,15 @@ public static class Ctrls
 
 	private static int RngIntMinToUI(this int? v, RngIntBounds bounds) => v ?? bounds.Min;
 	private static int RngIntMaxToUI(this int? v, RngIntBounds bounds) => v ?? bounds.Max;
+	private static string RngIntToUILabel(this int? v) => v.HasValue ? $"{v}" : "_";
 	private static int? RngIntMinFromUI(this int v, RngIntBounds bounds) => v == bounds.Min ? null : v;
 	private static int? RngIntMaxFromUI(this int v, RngIntBounds bounds) => v == bounds.Max ? null : v;
+
+	private static RangeControl SetStep(this RangeControl ctrl, int step)
+	{
+		ctrl.HtmlElement.InvokeScript(false, "eval", $"targetElement.step = {step}");
+		return ctrl;
+	}
 
 
 
@@ -167,7 +178,7 @@ public static class Ctrls
 							).CssRangeTime()
 							.Var2Ctrl(rxVar, (ctrl, val) => ctrl.Value = val.Min.RngTimeMinToUI(ticks)).D(d)
 							.Ctrl2Var(rxVar, (ctrl, set) => set(rxVar.V with { Min = ctrl.Value.RngTimeMinFromUI(ticks) })).D(d),
-						rxVar.Select(e => e.Min.RngTimeMinToUI(ticks)).ToSpan(d)
+						rxVar.Select(e => e.Min.RngTimeToUILabel()).ToSpan(d)
 					),
 					horzMid(
 						new RangeControl(
@@ -177,7 +188,7 @@ public static class Ctrls
 							).CssRangeTime()
 							.Var2Ctrl(rxVar, (ctrl, val) => ctrl.Value = val.Max.RngTimeMaxToUI(ticks)).D(d)
 							.Ctrl2Var(rxVar, (ctrl, set) => set(rxVar.V with { Max = ctrl.Value.RngTimeMaxFromUI(ticks) })).D(d),
-						rxVar.Select(e => e.Max.RngTimeMaxToUI(ticks)).ToSpan(d)
+						rxVar.Select(e => e.Max.RngTimeToUILabel()).ToSpan(d)
 					)
 				))
 			)
@@ -185,10 +196,36 @@ public static class Ctrls
 	}
 
 	private static int RngTimeMinToUI(this DateTime? v, DateTime[] ticks) => v == null ? 0 : ticks.IndexOf(v.Value);
+	private static string RngTimeToUILabel(this DateTime? v) => v.HasValue ? $"{v:yyyy-MM-dd}" : "_";
 	private static int RngTimeMaxToUI(this DateTime? v, DateTime[] ticks) => v == null ? ticks.Length - 1 : ticks.IndexOf(v.Value);
 	private static DateTime? RngTimeMinFromUI(this int v, DateTime[] ticks) => v == 0 ? null : ticks[v];
 	private static DateTime? RngTimeMaxFromUI(this int v, DateTime[] ticks) => v == ticks.Length - 1 ? null : ticks[v];
 
+
+
+
+
+	public static (Control, IDisp) MkEnumSingle<E>(
+		IRwVar<E> rxOutVar,
+		CtrlOpt opt
+	) where E : struct, Enum
+	{
+		var vals = Enum.GetValues<E>();
+		return rxOutVar.Mk((rxVar, d) => 
+			mk(
+				CtrlSize.Single,
+				mkKey(opt.KeyWidth, opt.Title),
+				mkVal(opt.ValWidth,
+					new SelectBox(
+							SelectBoxKind.DropDown,
+							vals.SelectToArray(e => $"{e}")
+						)
+						.Var2Ctrl(rxVar, (ctrl, val) => ctrl.SelectedIndex = vals.IndexOf(val)).D(d)
+						.Ctrl2Var(rxVar, (ctrl, set) => set(vals[ctrl.SelectedIndex])).D(d)
+				)
+			)
+		);
+	}
 
 
 

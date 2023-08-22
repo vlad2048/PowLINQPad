@@ -24,6 +24,12 @@ public static class PagerMaker
 			pageSize
 		);
 
+		pageCount.Subscribe(cnt =>
+		{
+			if (pageIndex.V > 0 && pageIndex.V >= cnt)
+				pageIndex.V = cnt - 1;
+		}).D(d);
+
 		var itemsFiltered = Var.Expr(() => items.V.Skip(pageIndex.V * pageSize).Take(pageSize).ToArray());
 
 		return (itemsFiltered, d);

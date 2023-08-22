@@ -10,7 +10,7 @@ public static class ListScroller
 {
 	public static TimeSpan JumpDelay { get; set; } = TimeSpan.FromMilliseconds(10);
 
-	public static (DumpContainer, IDisp) ToJumpDC(this IRoVar<Div[]> rxDivs, PagerState pagerState, IObservable<int> jump)
+	public static (DumpContainer, IDisp) ToJumpDC(this IObservable<Div[]> rxDivs, PagerState pagerState, IObservable<int> jump)
 	{
 		var d = new Disp();
 		var dc = new DumpContainer();

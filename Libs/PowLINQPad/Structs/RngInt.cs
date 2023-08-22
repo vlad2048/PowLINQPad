@@ -6,4 +6,4 @@ public sealed record RngInt(int? Min, int? Max)
 	public override string ToString() => $"[{f(Min)} - {f(Max)}]";
 	private static string f(int? v) => v.HasValue ? $"{v}" : "_";
 }
-public sealed record RngIntBounds(int Min, int Max);
+public sealed record RngIntBounds(int Min, int Max, int Step);

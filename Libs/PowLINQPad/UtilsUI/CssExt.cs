@@ -20,10 +20,17 @@ public static class CssVar
 
 public static class CssExt
 {
+	public static C fk<C>(this C c, string frontColor) where C : Control => c.Css($"color: {frontColor}");
+	public static C bk<C>(this C c, string backColor) where C : Control => c.Css($"background-color: {backColor}");
+
 	public static C Css<C>(this C ctrl, string css) where C : Control
 	{
 		foreach (var (key, val) in CssUtils.ParseCss(css))
+		{
+			if (key == "display" && ctrl.Styles[key] == "none") continue;
 			ctrl.Styles[key] = val;
+		}
+
 		return ctrl;
 	}
 
