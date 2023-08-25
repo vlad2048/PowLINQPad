@@ -29,4 +29,10 @@
 		<None Include="..\..\.editorconfig" Link=".editorconfig" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Editing\Utils\" />
+	  <Folder Include="Editing\_Base\" />
+	  <Folder Include="UtilsInternal\Json_\NamingPolicies\" />
+	</ItemGroup>
+
 </Project>

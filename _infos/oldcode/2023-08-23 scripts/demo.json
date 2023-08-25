@@ -1,0 +1,21 @@
+{
+  "f": {
+    "id": null,
+    "boolOpt": 0,
+    "text": {
+      "useRegex": false,
+      "text": ""
+    },
+    "rngInt": {
+      "min": null,
+      "max": null
+    },
+    "rngTime": {
+      "min": null,
+      "max": null
+    },
+    "enums": [
+      0
+    ]
+  }
+}

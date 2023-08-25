@@ -5,6 +5,12 @@ namespace PowLINQPad.UtilsUI;
 
 public static class CssClsExt
 {
+	public static C SetCls<C>(this C ctrl, string? cls) where C : Control
+	{
+		ctrl.CssClass = cls;
+		return ctrl;
+	}
+
 	public static C AddCls<C>(this C ctrl, string? cls) where C : Control
 	{
 		ctrl.CssClass = ctrl.CssClass.AddCls(cls);
