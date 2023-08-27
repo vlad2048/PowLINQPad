@@ -15,12 +15,12 @@ public static class Settings
 {
 	public static S Load<S>() where S : ISettings, new() => Jsoners.Common.LoadOrCreateDefault(File, new S());
 
-	public static IRwVar<T> Get<S, T>(this S settings, Expression<Func<S, T>> expr) where S : ISettings, new()
+	public static IFullRwBndVar<T> Get<S, T>(this S settings, Expression<Func<S, T>> expr) where S : ISettings, new()
 	{
 		var (get, set) = QueryExprUtils.RetrieveGetSet(expr);
-		var settingVar = Var.Make(get(settings)).D(D);
+		var settingVar = Var.MakeBnd(get(settings)).D(D);
 		settingVar
-			.Skip(1)
+			.WhenInner
 			.Subscribe(val =>
 			{
 				set(settings, val);
@@ -66,12 +66,12 @@ public static class Settings
 	private static readonly ConcurrentDictionary<object, List<Action>> resetMap = new();
 	private static readonly Dictionary<Type, object> defaultMap = new();
 
-	private static void RegisterVar<S, T>(S settings, IRwVar<T> rxVar, Func<S, T> get) where S : ISettings, new()
+	private static void RegisterVar<S, T>(S settings, IFullRwBndVar<T> rxVar, Func<S, T> get) where S : ISettings, new()
 	{
 		void ResetVar()
 		{
 			var defaultSettings = (S)defaultMap[typeof(S)];
-			rxVar.V = get(defaultSettings);
+			rxVar.SetOuter(get(defaultSettings));
 		}
 		resetMap.AddToList(settings, ResetVar);
 		Disposable.Create(() => resetMap.RemoveFromList(settings, ResetVar)).D(rxVar);

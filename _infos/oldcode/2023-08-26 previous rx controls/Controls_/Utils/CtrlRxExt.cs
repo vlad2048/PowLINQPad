@@ -3,6 +3,7 @@ using LINQPad.Controls;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using PowLINQPad.Controls_.Utils;
+using PowLINQPad.UtilsUI;
 
 namespace PowLINQPad.Controls_.Utils;
 
@@ -62,7 +63,7 @@ static class CtrlRxExt
 
     private static IObservable<T> When<T>(this IRwVar<T> rxVar) => rxVar switch
     {
-        IFullRwBndVar<T> rxBndVar => rxBndVar.WhenOuter.Prepend(rxVar.V),
+        IFullRwBndVar<T> rxBndVar => rxBndVar.WhenOuterOrInit(),
         _ => rxVar
     };
 

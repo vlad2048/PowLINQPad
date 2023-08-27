@@ -1,43 +1,54 @@
-﻿using LINQPad.Controls;
+﻿using System.Reactive.Linq;
+using LINQPad.Controls;
 using LINQPad;
 using PowLINQPad.UtilsUI;
+using PowLINQPad.Editing._Base;
 
 namespace PowLINQPad.Editing.Controls_;
 
-public class CtrlTextBox : Control, IDisp
+public class CtrlTextBox : Control, IBoundCtrl<string>
 {
 	private readonly Disp d = new();
 	public void Dispose() => d.Dispose();
 	
 	private static int idCnt;
-	private readonly IFullRwBndVar<string> rxVal;
+	private readonly IFullRwBndVar<string> rxVar;
+	private readonly Control ctrlInput;
 	
-	public IRwBndVar<string> Value => rxVal.ToRwBndVar();
+	public IRwBndVar<string> RxVar => rxVar.ToRwBndVar();
 	
 	public CtrlTextBox(string text) : base("div")
 	{
 		var id = idCnt++;
 		HtmlElement.ID = $"textinput-{id}";
 		this.SetCls(Css.ClsRoot);
-		Control ctrlInput;
 		VisualTree.AddRange(new []
 		{
 			new Span(text).SetCls(Css.ClsTitle),
 			ctrlInput = new Control("input").SetCls(Css.ClsInput)
 		});
 		Util.HtmlHead.AddStyles(Css.Styles);
-		
-		
-		rxVal = Var.MakeBnd(string.Empty).D(d);
-		
-		ctrlInput.WhenEvent("input", d).Subscribe(_ =>
-		{
-			var textObj = ctrlInput.HtmlElement.InvokeScript(true, "eval", "targetElement.value");
-			if (textObj is not string textStr) return;
-			rxVal.SetInner(textStr);
-		}).D(d);
+		ctrlInput.HtmlElement.SetAttribute("type", "search");
 
-		rxVal.WhenOuter.Subscribe(v => ctrlInput.HtmlElement.InvokeScript(true, "eval", $"targetElement.value = '{v}'")).D(d);
+		
+		rxVar = Var.MakeBnd(string.Empty).D(d);
+	}
+
+	protected override void OnRendering(EventArgs e)
+	{
+		base.OnRendering(e);
+
+		Task.Delay(0).ContinueWith(_ =>
+		{
+			ctrlInput.WhenEvent("input", d).Subscribe(_ =>
+			{
+				var textObj = ctrlInput.HtmlElement.InvokeScript(true, "eval", "targetElement.value");
+				if (textObj is not string textStr) return;
+				rxVar.SetInner(textStr);
+			}).D(d);
+
+			RxVar.WhenOuterOrInit().Subscribe(v => ctrlInput.HtmlElement.InvokeScript(true, "eval", $"targetElement.value = '{v}'")).D(d);
+		});
 	}
 }
 
@@ -60,13 +71,14 @@ file static class Css
 			border-bottom-left-radius:	6px;
 			border-top-left-radius:		6px;
 			border-right:				none;
+			width:						100%;
 		}
 		.{{ClsInput}} {
 			border:						1px solid #15181b;
 			border-bottom-right-radius:	6px;
 			border-top-right-radius:	6px;
 			margin:						0;
-			appearance: 				none;
+			appearance: 				searchfield-cancel-button;
 		}
 		.{{ClsInput}}:focus {
 			outline:					none;

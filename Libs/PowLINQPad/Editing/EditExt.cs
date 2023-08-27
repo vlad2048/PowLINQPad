@@ -1,216 +1,118 @@
 ﻿using System.Reactive.Linq;
-using System.Reflection;
+using LINQPad;
 using LINQPad.Controls;
 using PowBasics.CollectionsExt;
-using PowLINQPad.Editing._Base;
-using PowLINQPad.Editing.Editors_;
+using PowLINQPad.Editing.Controls_;
+using PowLINQPad.Editing.Layout_;
+using PowLINQPad.Editing.Utils;
 using PowLINQPad.UtilsUI;
 
 namespace PowLINQPad.Editing;
 
 
-
 public static class EditExt
 {
-	public static Control MakeEditor<T>(this IFullRwBndVar<T> rxVar, IRoDispBase d)
+	public static void MakeEditor<T>(
+		this IFullRwBndVar<T> rxVar,
+		IRoDispBase d,
+		IReadOnlyDictionary<string, object>? extraParams = null,
+		string[]? tabNames = null
+	)
 	{
-		var ctrls = (
+		var contexts = (
 			from prop in typeof(T).GetProperties()
-			let attr = Attribute.GetCustomAttributes(prop).FirstOrDefault(attr => attr is EditAttribute)
+			let customAttrs = Attribute.GetCustomAttributes(prop)
+			let attr = customAttrs.FirstOrDefault(attr => attr is EditAttribute)
 			where attr != null
-			let access = rxVar.BreakdownProp(prop, d)
-			select CreateCtrl(prop, (EditAttribute)attr, access, d)
+			let pos = customAttrs.ReadPos()
+			let editAttr = (EditAttribute)attr
+			let rxProp = rxVar.SplitProp(prop, d)
+			select new EditCtx(
+				editAttr,
+				pos,
+				prop,
+				rxProp,
+				d,
+				extraParams ?? new Dictionary<string, object>(),
+				tabNames ?? Array.Empty<string>()
+			)
 		)
 			.ToArray();
 
-		var ui = new Div(ctrls).Css("""
-			display: flex;
-		""");
-		return ui;
-	}
+		Util.HtmlHead.AddStyles(Css.Styles);
 
-	private static Control CreateCtrl(PropertyInfo prop, EditAttribute attrBase, PropAccess access, IRoDispBase d) =>
-		attrBase switch
+		// Compute Layout
+		// ==============
+		var layout = LayoutLogic.Compute(contexts);
+
+		// Display Tabs
+		// ============
+		var tabIndex = Var.Make(0).D(d);
+		if (layout.Tabs.Length > 1)
 		{
-			SingleEnumEditAttribute attr => CallMake(typeof(SingleEnumEditor), prop.PropertyType, access, d, attr.Text ?? prop.Name),
-			MultipleEnumEditAttribute attr => CallMake(typeof(MultipleEnumEditor), prop.PropertyType.GetElementType()!, access, d, attr.Text ?? prop.Name),
-			_ => throw new ArgumentException("Uknown editor")
-		};
-
-
-	private static Control CallMake(Type editorType, Type makeType, PropAccess access, IRoDispBase d, params object[] extraParams)
-	{
-		var ps = new List<object>
-		{
-			access,
-			d
-		};
-		ps.AddRange(extraParams);
-		return (Control)editorType.GetMethod("Make")!.MakeGenericMethod(makeType).Invoke(null, ps.ToArray())!;
-	}
-
-	
-
-	private static PropAccess BreakdownProp<T>(this IFullRwBndVar<T> rxVar, PropertyInfo prop, IRoDispBase d)
-	{
-		object Get() => prop.GetValue(rxVar.V)!;
-		void Set(object obj)
-		{
-			var valNext = Utils.ConstructWith(rxVar.V, obj, prop);
-			rxVar.SetInner(valNext);
+			var tabBtns = layout.Tabs.SelectToArray((tab, i) => new Span(tab.Tab.Name).SetClsFlag(Css.ClsTabBtn, i == tabIndex.V).WhenClickedAction(d, () => tabIndex.V = i));
+			new Div(tabBtns.OfType<Control>()).SetCls(Css.ClsTabBtnWrapper).Dump();
+			tabIndex.Subscribe(t =>
+			{
+				for (var i = 0; i < tabBtns.Length; i++)
+					tabBtns[i].SetClsFlag(Css.ClsTabBtn, i == t);
+			}).D(d);
 		}
-		return new PropAccess(prop, Get, Set);
+
+		// Display Layout
+		// ==============
+		foreach (var tab in layout.Tabs)
+		{
+			var divs = tab.CtrlGroups.SelectToArray(grp =>
+				{
+					if (grp.Ctrls.Length == 1)
+						return grp.Ctrls[0].Build();
+					else
+						return new Div(
+							grp.Ctrls.SelectToArray(ctrl => ctrl.Build())
+						).SetCls(Css.ClsGroupCtrl);
+				}
+			);
+			var tabDiv = new Div(divs.OfType<Control>())
+				.SetCls(Css.ClsGroupTab)
+				.DisplayIf(tabIndex.Select(i => i == tab.Tab.Index), d);
+			tabDiv.Dump();
+		}
 	}
 }
 
 
-public sealed record PropAccess(
-	PropertyInfo PropNfo,
-	Func<object> Get,
-	Action<object> Set
-)
+file static class Css
 {
-	public PropAccess<T> ToTyped<T>() => new(
-		PropNfo,
-		() => (T)Get(),
-		obj => Set(obj!)
-	);
-}
+	// @formatter:off
+	public const string ClsTabBtnWrapper	= "editor-tab-btn-wrapper";
+	public const string ClsTabBtn			= "editor-tab-btn";
+	public const string ClsGroupTab			= "editor-group-tab";
+	public const string ClsGroupCtrl		= "editor-group-ctrl";
+	// @formatter:on
 
-public sealed record PropAccess<T>(
-	PropertyInfo PropNfo,
-	Func<T> Get,
-	Action<T> Set
-);
-
-
-
-/*
-public static class EditExt
-{
-	//public static Control MakeEditor<T>(this IFullRwBndVar<T> rxVar, IRoDispBase d)
-	//{
-	//	var props = 
-	//}
-
-
-	public static object[] Breakdown<T>(this IFullRwBndVar<T> rxVar, IRoDispBase d)
-	{
-		var t = typeof(T);
-		var props = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-		return props.SelectToArray(prop => BreakdownProp(rxVar, prop, d));
-	}
-
-	private static object BreakdownProp<T>(this IFullRwBndVar<T> rxVar, PropertyInfo prop, IRoDispBase d)
-	{
-		var initVal = prop.GetValue(rxVar.V)!;
-		var rxPropVar = GenCall.MakeBnd(initVal, d);
-
-		GenCall.PipeToOuter(
-			//rxVar.WhenOuter.Select(e => prop.GetValue(e)),
-			GenCall.Select(rxVar.WhenOuter, MakeDelegate<T>(prop.PropertyType, prop), prop.PropertyType),
-			rxPropVar,
-			d
-		);
-		//GenCall.PipeToInner(
-		//	rxVar.WhenOuter.Select(e => prop.GetValue(e)),
-		//	rxPropVar,
-		//	d
-		//);
-		return rxPropVar;
-	}
-
-	private static Delegate MakeDelegate<T>(Type destType, PropertyInfo prop) =>
-		Delegate.CreateDelegate(
-			typeof(Func<,>).MakeGenericType(typeof(T), destType),
-			prop.GetAccessors()[0]
-		);
-	
-
-	private sealed record PropNfo(
-		Func<object> Get,
-		Action<object> Set
-	);
-
-	private static PropNfo[] GetProps<T>(IFullRwBndVar<T> rxVar) =>
-		typeof(T)
-			.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-			.SelectToArray(p => GetProp(rxVar, p));
-	
-	private static PropNfo GetProp<T>(IFullRwBndVar<T> rxVar, PropertyInfo prop)
-	{
-		object Get() => prop.GetValue(rxVar.V)!;
-		void Set(object obj)
-		{
-			var valNext = Utils.ConstructWith(rxVar.V, obj, prop);
-			rxVar.SetInner(valNext);
+	public static readonly string Styles = $$"""
+		.{{ClsTabBtnWrapper}} {
+			display:			flex;
+			column-gap:			10px;
+			margin-bottom:		5px;
 		}
-		return new PropNfo(Get, Set);
-	}
-}
-
-
-file static class GenCall
-{
-	private static readonly MethodInfo makeBnd = typeof(Utils).GetMethod("MakeBnd")!;
-	private static readonly MethodInfo select = typeof(Obs).GetMethods().First(e => e.Name == "Select");
-	private static readonly MethodInfo pipeToOuter = typeof(Utils).GetMethod("PipeToOuter")!;
-	private static readonly MethodInfo pipeToInner = typeof(Utils).GetMethod("PipeToInner")!;
-
-	public static object MakeBnd(object val, IRoDispBase d) =>
-		makeBnd.MakeGenericMethod(val.GetType()).Invoke(null, new[] { val, d })!;
-
-	public static object Select(object obs, object fun, Type destType) =>
-		select.MakeGenericMethod(
-				obs.GetType().GenericTypeArguments[0],
-				destType
-			)
-			.Invoke(null, new[] { obs, fun })!;
-
-	public static void PipeToOuter(object obs, object rxVar, IRoDispBase d) =>
-		pipeToOuter.MakeGenericMethod(obs.GetType().GenericTypeArguments[0]).Invoke(null, new[] { obs, rxVar, d });
-
-	public static void PipeToInner(object obs, object rxVar, IRoDispBase d) =>
-		pipeToInner.MakeGenericMethod(obs.GetType().GenericTypeArguments[0]).Invoke(null, new[] { obs, rxVar, d });
-}*/
-
-
-file static class Utils
-{
-	public static IFullRwBndVar<T> MakeBnd<T>(T val, IRoDispBase d) => Var.MakeBnd(val).D(d);
-
-	public static void PipeToOuter<T>(this IObservable<T> obs, IFullRwBndVar<T> rxVar, IRoDispBase d) => obs.Subscribe(rxVar.SetOuter).D(d);
-	public static void PipeToInner<T>(this IObservable<T> obs, IFullRwBndVar<T> rxVar, IRoDispBase d) => obs.Subscribe(rxVar.SetInner).D(d);
-
-	public static T ConstructWith<T>(T rec, object propVal, PropertyInfo nfo)
-	{
-		var t = typeof(T);
-		var constrs = t.GetConstructors();
-		if (constrs.Length != 1) throw new ArgumentException("not 1 constructor exactly");
-		var constr = constrs[0];
-		var constrParams = constr.GetParameters();
-		var props = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-		VerifyParamsMatch(constrParams, props);
-		
-		var args = new object[props.Length];
-		for (var i = 0; i < props.Length; i++)
-		{
-			var prop = props[i];
-			if (prop.Name == nfo.Name && prop.PropertyType == nfo.PropertyType)
-				args[i] = propVal;
-			else
-				args[i] = prop.GetValue(rec)!;
+		.{{ClsTabBtn}} {
+			padding:			3px 20px;
+			cursor:				pointer;
+			border-radius:		6px;
 		}
-		
-		var res = constr.Invoke(args);		
-		
-		return (T)res;
-	}
-	
-	private static void VerifyParamsMatch(ParameterInfo[] cs, PropertyInfo[] ps)
-	{
-		var isMatch = cs.Length == ps.Length && cs.Zip(ps).Select(t => (c: t.First, p: t.Second)).All(t => t.c.Name == t.p.Name && t.c.ParameterType == t.p.PropertyType);
-		if (!isMatch)
-			throw new ArgumentException("constructor params do not match properties");
-	}
+		.{{ClsTabBtn.Flag(true)}} {
+			background-color:	#453d73;
+		}
+		.{{ClsGroupTab}} {
+			display:			flex;
+			align-items:		flex-start;
+			column-gap:			30px;
+		}
+		.{{ClsGroupCtrl}} {
+			display:			flex;
+			flex-direction:		column;
+		}
+	""";
 }

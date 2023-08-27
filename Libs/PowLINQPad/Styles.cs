@@ -6,6 +6,15 @@ static class Styles
 {
 	public static void Init() => Util.HtmlHead.AddStyles("""
 		@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
+		:root {
+			--colorPageBk:			#1d2125;
+			--colorPageFk:			#ffffff;
+
+			--colorButtonBk:		#0066ff;
+			--colorButtonHoverBk:	#0052cc;
+			--borderCtrl:			1px solid #15181b;
+		}
 	
 		* {
 			box-sizing: border-box;
@@ -13,33 +22,23 @@ static class Styles
 
 
 		body {
-			background-color:	#1d2125;
+			background-color:	var(--colorPageBk);
+			color:				var(--colorPageFk);
 			font-family:		Inter;
 			font-size:			14px;
 			line-height:		21px;
-			color:				#ffffff;
 		}
 		button {
 			font-family:		inherit;
 			color:				inherit;
-			background-color:	#0066ff;
-			border:				1px solid #15181b;
+			background-color:	var(--colorButtonBk);
+			border:				var(--borderCtrl);
 			border-radius:		6px;
 			padding:			6px 8px 6px 8px;
 			cursor:				pointer;
 		}
 		button:hover {
-			background-color:	#0052cc;
-		}
-		button::after {
-			content:			"";
-			display:			inline-block;
-			margin-left:		7px;
-			vertical-align:		2px;
-			border-top:			4px solid;
-			border-left:		4px solid transparent;
-			border-right:		4px solid transparent;
-			border-bottom:		0;
+			background-color:	var(--colorButtonHoverBk);
 		}
 	""");
 }

@@ -1,8 +1,9 @@
 ﻿namespace PowLINQPad.Structs;
 
-public enum BoolOpt
+
+public enum YesNoAny
 {
-	None,
-	True,
-	False
+	Any,
+	Yes,
+	No
 }

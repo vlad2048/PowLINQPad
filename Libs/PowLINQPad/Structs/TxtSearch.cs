@@ -1,8 +1,28 @@
 ﻿using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using PowLINQPad.UtilsUI;
 
 namespace PowLINQPad.Structs;
 
+
+public class TxtSearch
+{
+	public string Text { get; }
+
+	[JsonIgnore]
+	public string[]? Parts { get; }
+
+	public TxtSearch(string text)
+	{
+		Text = text;
+		Parts = Text.Chop(' ');
+	}
+
+	public static readonly TxtSearch Empty = new(string.Empty);
+}
+
+
+/*
 public class TxtSearch
 {
 	public bool UseRegex { get; }
@@ -59,3 +79,4 @@ file static class TxtSearchUtils
 		}
 	}
 }
+*/

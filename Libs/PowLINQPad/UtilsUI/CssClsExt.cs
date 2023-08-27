@@ -5,19 +5,48 @@ namespace PowLINQPad.UtilsUI;
 
 public static class CssClsExt
 {
-	public static C SetCls<C>(this C ctrl, string? cls) where C : Control
+	public static C AddClsIf<C>(this C ctrl, string cls, bool condition) where C : Control => condition switch
 	{
-		ctrl.CssClass = cls;
+		false => ctrl,
+		true => ctrl.AddCls(cls)
+	};
+	public static C AddCls<C>(this C ctrl, params string?[] clss) where C : Control
+	{
+		foreach (var cls in clss)
+			ctrl.AddClsInternal(cls);
+		return ctrl;
+	}
+	public static C DelCls<C>(this C ctrl, params string?[] clss) where C : Control
+	{
+		foreach (var cls in clss)
+			ctrl.DelClsInternal(cls);
 		return ctrl;
 	}
 
-	public static C AddCls<C>(this C ctrl, string? cls) where C : Control
+	public static C SetCls<C>(this C ctrl, params string?[] clss) where C : Control
+	{
+		ctrl.CssClass = clss.Where(e => e != null).JoinText(" ");
+		return ctrl;
+	}
+
+	public static string Flag(this string cls, bool on) => on switch
+	{
+		false => $"{cls}-off",
+		true => $"{cls}-on"
+	};
+	public static C SetClsFlag<C>(this C ctrl, string cls, bool on) where C : Control => ctrl.SetCls(cls, cls.Flag(on));
+
+
+
+
+
+	private static C AddClsInternal<C>(this C ctrl, string? cls) where C : Control
 	{
 		ctrl.CssClass = ctrl.CssClass.AddCls(cls);
 		return ctrl;
 	}
 
-	public static C DelCls<C>(this C ctrl, string? cls) where C : Control
+	private static C DelClsInternal<C>(this C ctrl, string? cls) where C : Control
 	{
 		ctrl.CssClass = ctrl.CssClass.DelCls(cls);
 		return ctrl;

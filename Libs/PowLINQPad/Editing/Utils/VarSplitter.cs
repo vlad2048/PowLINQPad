@@ -6,13 +6,13 @@ namespace PowLINQPad.Editing.Utils;
 
 static class VarSplitter
 {
-	public static object[] Split<T>(this IFullRwBndVar<T> rxVar, IRoDispBase d) =>
-		typeof(T)
-			.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-			.SelectToArray(propNfo => rxVar.SplitProp(d, propNfo));
+	//public static object[] Split<T>(this IFullRwBndVar<T> rxVar, IRoDispBase d) =>
+	//	typeof(T)
+	//		.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+	//		.SelectToArray(propNfo => rxVar.SplitProp(propNfo, d));
 			
 	
-	private static object SplitProp<T>(this IFullRwBndVar<T> rxVar, IRoDispBase d, PropertyInfo propNfo)
+	public static object SplitProp<T>(this IFullRwBndVar<T> rxVar, PropertyInfo propNfo, IRoDispBase d)
 	{
 		// rxProp = Var.MakeBnd(rxVar.V.[PROP]);
 		// =====================================

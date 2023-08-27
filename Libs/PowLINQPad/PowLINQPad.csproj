@@ -14,6 +14,7 @@
 	<ItemGroup>
 		<PackageReference Include="AngleSharp" Version="1.0.4" />
 		<PackageReference Include="PowBasics" Version="0.0.34" />
+		<PackageReference Include="PowMaybeErr" Version="0.0.12" />
 		<PackageReference Include="PowRxVar" Version="0.0.47" />
 		<PackageReference Include="PowTrees" Version="0.0.46" />
 	</ItemGroup>
@@ -30,9 +31,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Editing\Controls_\Slider_\" />
+	  <Folder Include="Editing\Layout_\" />
 	  <Folder Include="Editing\Utils\" />
-	  <Folder Include="Editing\_Base\" />
+	  <Folder Include="Controls_\" />
 	  <Folder Include="UtilsInternal\Json_\NamingPolicies\" />
+	  <Folder Include="UtilsUI\Css_\" />
 	</ItemGroup>
 
 </Project>
