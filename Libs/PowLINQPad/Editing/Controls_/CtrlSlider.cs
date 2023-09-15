@@ -3,7 +3,8 @@ using LINQPad.Controls;
 using PowLINQPad.Editing._Base;
 using PowLINQPad.Editing.Controls_.Slider_;
 using PowLINQPad.Structs;
-using PowLINQPad.UtilsUI;
+using PowLINQPad.Utils.Ctrls_;
+using PowLINQPad.UtilsInternal;
 
 namespace PowLINQPad.Editing.Controls_;
 

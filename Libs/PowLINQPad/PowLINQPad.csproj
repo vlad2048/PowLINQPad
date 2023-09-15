@@ -30,13 +30,4 @@
 		<None Include="..\..\.editorconfig" Link=".editorconfig" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Editing\Controls_\Slider_\" />
-	  <Folder Include="Editing\Layout_\" />
-	  <Folder Include="Editing\Utils\" />
-	  <Folder Include="Controls_\" />
-	  <Folder Include="UtilsInternal\Json_\NamingPolicies\" />
-	  <Folder Include="UtilsUI\Css_\" />
-	</ItemGroup>
-
 </Project>

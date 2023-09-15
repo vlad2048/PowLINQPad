@@ -8,8 +8,8 @@ using PowLINQPad.Editing.Controls_;
 using PowLINQPad.Editing.Controls_.Slider_;
 using PowLINQPad.Editing.Layout_;
 using PowLINQPad.Structs;
-using PowLINQPad.UtilsUI;
 using PowMaybeErr;
+using PowLINQPad.UtilsInternal;
 
 namespace PowLINQPad.Editing;
 

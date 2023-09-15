@@ -1,8 +1,8 @@
 ﻿using PowLINQPad.Editing.Controls_;
-using PowLINQPad.Flex_.Utils;
 using PowLINQPad.Interactions.ListScrolling;
 using PowLINQPad.Settings_;
-using PowLINQPad.UtilsUI;
+using PowLINQPad.Utils.Css_;
+using PowLINQPad.Utils.Css_.Utils;
 
 namespace PowLINQPad;
 
@@ -17,7 +17,6 @@ public static class RxUI
 		Settings.Init();
 		CssVars.Init();
 		CssUtils.Init();
-		PaletteUtils.Init();
 		ListScroller.Init();
 		CtrlSlider.Init();
 		Styles.Init();

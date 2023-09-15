@@ -1,17 +1,10 @@
 ﻿using System.Reactive.Linq;
 using System.Reflection;
-using PowBasics.CollectionsExt;
 
 namespace PowLINQPad.Editing.Utils;
 
-static class VarSplitter
+public static class VarSplitter
 {
-	//public static object[] Split<T>(this IFullRwBndVar<T> rxVar, IRoDispBase d) =>
-	//	typeof(T)
-	//		.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-	//		.SelectToArray(propNfo => rxVar.SplitProp(propNfo, d));
-			
-	
 	public static object SplitProp<T>(this IFullRwBndVar<T> rxVar, PropertyInfo propNfo, IRoDispBase d)
 	{
 		// rxProp = Var.MakeBnd(rxVar.V.[PROP]);

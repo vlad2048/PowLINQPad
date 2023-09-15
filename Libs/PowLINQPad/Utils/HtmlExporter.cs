@@ -1,16 +1,17 @@
 ﻿using System.Diagnostics;
-using AngleSharp.Html.Parser;
 using AngleSharp.Html;
+using AngleSharp.Html.Parser;
 using LINQPad;
 
-namespace PowLINQPad.UtilsUI;
+namespace PowLINQPad.Utils;
 
 public static class HtmlExporter
 {
 	public static void OpenInBrowser()
 	{
 		var file = $"{Path.GetTempFileName()}.html";
-		SavePage(file);
+		var html = GetHtml();
+		File.WriteAllText(file, html);
 		Process.Start(new ProcessStartInfo
 		{
 			FileName = file,
@@ -18,14 +19,11 @@ public static class HtmlExporter
 		});
 	}
 
-	private static void SavePage(string htmlFile)
-	{
-		var html = (string)Util.InvokeScript(true, "eval", "document.documentElement.innerHTML");
-		html = Beautify(html);
-		File.WriteAllText(htmlFile, html);
-	}
+	public static string GetHtml() =>
+		((string)Util.InvokeScript(true, "eval", "document.documentElement.innerHTML"))
+			.BeautifyHtml();
 
-	private static string Beautify(string html)
+	public static string BeautifyHtml(this string html)
 	{
 		var parser = new HtmlParser();
 		var doc = parser.ParseDocument(html);

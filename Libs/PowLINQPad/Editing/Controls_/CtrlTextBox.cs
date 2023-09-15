@@ -1,8 +1,10 @@
 ﻿using System.Reactive.Linq;
 using LINQPad.Controls;
 using LINQPad;
-using PowLINQPad.UtilsUI;
 using PowLINQPad.Editing._Base;
+using PowLINQPad.Utils.Css_;
+using PowLINQPad.Utils.Ctrls_;
+using PowLINQPad.UtilsInternal;
 
 namespace PowLINQPad.Editing.Controls_;
 
@@ -83,6 +85,9 @@ file static class Css
 		.{{ClsInput}}:focus {
 			outline:					none;
 			border:						1px solid #10366E;
+		}
+		::-webkit-search-cancel-button {
+			cursor:						pointer;
 		}
 	""";
 }

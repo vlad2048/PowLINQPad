@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using LINQPad;
 
-namespace PowLINQPad.UtilsUI;
+namespace PowLINQPad.Utils;
 
 public static class DbgExt
 {

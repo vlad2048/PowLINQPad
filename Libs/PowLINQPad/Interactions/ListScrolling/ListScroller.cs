@@ -2,7 +2,7 @@
 using LINQPad.Controls;
 using LINQPad;
 using PowLINQPad.Interactions.Paging;
-using PowLINQPad.UtilsUI;
+using PowLINQPad.Utils.Css_;
 
 namespace PowLINQPad.Interactions.ListScrolling;
 
@@ -18,7 +18,8 @@ public static class ListScroller
 		rxDivs.Subscribe(divs =>
 		{
 			for (var i = 0; i < divs.Length; i++) divs[i].AddCls($"idx-{i}");
-			dc.UpdateContent(divs);
+			var wrapDiv = new Div(divs.OfType<Control>());
+			dc.UpdateContent(wrapDiv);
 		}).D(d);
 
 		jump

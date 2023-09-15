@@ -2,8 +2,9 @@
 using LINQPad;
 using PowBasics.CollectionsExt;
 using System.Reactive.Linq;
-using PowLINQPad.UtilsUI;
 using PowLINQPad.Editing._Base;
+using PowLINQPad.Utils.Css_;
+using PowLINQPad.Utils.Ctrls_;
 
 namespace PowLINQPad.Editing.Controls_;
 
@@ -70,7 +71,7 @@ public class CtrlDropdownButton : Control, IBoundCtrl<int[]>
     {
 	    base.OnRendering(e);
 
-		if (multiple)
+		//if (multiple)
 		{
 			this.WhenMounted()
 				.Subscribe(_ =>
@@ -164,7 +165,7 @@ file static class Css
 			position:			absolute;
 			left:				0;
 			top:				30px;
-			z-index:			1;
+			z-index:			3;
 			
 			background-color:	#1e2227;
 			flex-direction:		column;
